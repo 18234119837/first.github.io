@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        .main {
+            background: url("2.jpg");
+            background-size: cover;
+            background-repeat: no-repeat;
+            width: 1000px;
+            height: 100%;
+            /*background-color: aqua;*/
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+        .left {
+            width: 800px;
+            height: 100%;
+            /*background-color: red;*/
+            float: left;
+
+        }
+        .right {
+            width: 200px;
+            height: 100%;
+            background-color: rgba(241, 216, 0, 0.1);
+            float: left;
+        }
+        .show {
+            width: 180px;
+            height: 40px;
+            margin: 30px auto;
+            border: 1px solid #ccc;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        .title {
+            height: 20px;
+            text-align: center;
+            line-height: 20px;
+            color: #fff;
+        }
+        .con {
+            text-align: center;
+            line-height: 20px;
+            background-color: #00c0a5;
+            color: #deff45;
+        }
+        .btn {
+            width: 180px;
+            height: 30px;
+            text-align: center;
+            line-height: 30px;
+            background-color: #da0a00;
+            color: black;
+            margin: 30px auto 0;
+            cursor: pointer;
+        }
+        .letter {
+            width: 80px;
+            height: 80px;
+            border: 1px solid black;
+            text-align: center;
+            line-height: 80px;
+            position: absolute;
+            font-weight: bold;
+
+            /*background-;*/
+
+        }
+    </style>
+</head>
+<body>
+<div class="main">
+    <div class="left"></div>
+    <div class="right">
+        <div class="show">
+            <div class="title">得分</div>
+            <div class="con" id="scor">0</div>
+        </div>
+        <div class="show">
+            <div class="title">关卡</div>
+            <div class="con" id="state">1</div>
+        </div>
+        <div class="show">
+            <div class="title">生命</div>
+            <div class="con" id="life">5</div>
+        </div>
+        <div class="btn" id="start">开始</div>
+        <div class="btn" id="pause">暂停</div>
+    </div>
+</div>
+</body>
+<script>
+
+    class Game {//es6 中 创建类的方式
+        constructor(left,life,state,scor) {
+            this.life=life;
+            this.lifenum=5
+            this.speed=5
+            this.state=state;
+            this.statenum=1;
+            this.scor=scor;
+            this.scornum=0;
+            this.height=window.innerHeight;
+            this.left = left;
+            this.num = 3;
+            this.obj = {};
+            this.flag=true;
+            this.st=null;
+        }
+        start() {//相当于原型上写的方法 ------开始游戏
+            this._int();
+            for (let i = 0; i < this.num; i++) {
+                this._createLetter(); //创建字母
+            }
+            this._move();
+            this._keydown();//执行这个方法
+        }
+        _createLetter() {//创建字母的方法即创建一个div 的方法
+            let newdiv = document.createElement("div")//添加
+            newdiv.className = "letter";
+            do { //随机获取26个大写字母 先执行完然后判断
+                var randomNum = Math.floor(Math.random() * 26+ 65); //65到90的数 向下取整
+                var randomLetter = String.fromCharCode(randomNum);
+            } while (this.obj[randomLetter]);
+
+
+
+//给字母加图片    newdiv.style.backgroundImage=`url(images/${randomletter}.png)`;
+
+            do {
+                var randomLeft = Math.random() * 720; //随机位置0-720
+            } while (this._checkLeft(randomLeft));
+
+            newdiv.style.left = randomLeft + "px";
+            newdiv.style.background=getColor();//字母的背景色
+            newdiv.style.color=getColor();//字体颜色随机
+            let randomTop = Math.random() * 100;
+            this.obj[randomLetter] = {left: randomLeft,ele:newdiv};//只要是真值就可以
+
+            newdiv.style.top = randomTop + "px";
+            newdiv.innerHTML = randomLetter;
+            this.left.appendChild(newdiv);
+        }
+
+        _checkLeft(left) {//位置不重叠
+            for (var i in this.obj) {
+                if (left > this.obj[i].left - 80 && left < this.obj[i].left + 80) {
+                    return true;
+                }
+            }
+        }
+        _move() {//动起来
+             this.st=setInterval(function () {
+                for (let i in this.obj) {//        es5的语法
+                    let top = this.obj[i].ele.offsetTop;
+                    top += this.speed;
+                    this.obj[i].ele.style.top = top + "px";//元素对象的值
+                    if(top>this.height){
+                        this.lifenum--;//生命值减小
+                        this.life.innerHTML=this.lifenum;//生命值
+                        this.left.removeChild(this.obj[i].ele)//移除子元素
+                        delete this.obj[i];//删除这个元素
+                        this._createLetter();// 创建一新的元素
+                       if(this.lifenum===0){// 什么时候生命值结束
+                            this._gameover();
+                        }
+                    }
+                }
+            }.bind(this), 60)//函数定义的时候，直接改他的this方法，用这个和外边的this 一样
+        }
+        _keydown() {
+            this._keydownHandlet=function (e) {
+                let kc = e.keyCode;
+                let letter = String.fromCharCode(kc);
+                if (this.obj[letter]) {
+                    this.left.removeChild(this.obj[letter].ele);
+                    delete this.obj[letter];
+                    this._createLetter();
+                    //得分增加
+                    this.scornum++;
+                    this.scor.innerHTML=this.scornum;
+                    //关卡增加
+                    if(this.scornum%10===0){
+                        this._upstate();
+                    }
+                }
+            }.bind(this);
+            document.addEventListener("keydown",this._keydownHandlet);
+            }
+
+           /* document.onkeydown = function (e) {//键盘按下的时候
+                let kc = e.keyCode
+                let letter = String.fromCharCode(kc);
+                if (this.obj[letter]) {
+                    this.left.removeChild(this.obj[letter].ele);
+                    delete this.obj[letter];
+                    this._createLetter();
+                    //得分增加
+                    this.scornum++;
+                    this.scor.innerHTML=this.scornum;
+                    //关卡增加
+                    if(this.scornum%10===0){
+                        this._upstate();
+                    }
+                }
+            }.bind(this);*/
+        _upstate(){//关卡
+            this.statenum++;
+            this.state.innerHTML=this.statenum;
+            if(this.statenum<4){//前三关字母增多
+                this._createLetter();//字母增多
+            }else{
+                this.speed++;//速度加快
+            }
+        }
+        _gameover(){
+            alert(`游戏结束 当前得分为${this.scornum}`);
+//            this._int();
+            clearInterval(this.st);
+            this.flag=true;//开关
+        }
+        _int(){
+            this.state.innerHTML=1;
+            this.left.innerHTML=""
+            this.scor.innerHTML=0;
+            this.lifenum=5
+            this.speed=5
+            this.statenum=1;
+            this.scornum=0;
+            this.num = 3;
+            this.obj = {};
+//            this.flag=true;
+            this.st=null;
+        }
+        pause(){
+            clearInterval(this.st)
+            document.removeEventListener("keydown",this._keydownHandlet)
+        }
+        run(){
+            this._move();
+            this._keydown();
+        }
+    }
+    let pauseBtn=document.querySelector('#pause')
+    let state=document.querySelector("#state")
+    let life=document.querySelector("#life")
+    let left = document.querySelector(".left");
+    let scor=document.querySelector("#scor")
+    let game = new Game(left,life,state,scor);//实例化一个grame函数
+    let startbtn = document.querySelector("#start");
+    startbtn.onclick = function () {
+        if (game.flag) {
+            game.flag = false;
+            game.start();
+            this.style.color = "#ccc"
+        }
+    }
+    let flag1=true;
+    pauseBtn.onclick=function () {
+        if (flag1) {
+            game.pause();//游戏暂停
+            this.innerHTML = "继续"
+        } else {
+            game.run();//游戏继续
+            this.innerHTML = "暂停"
+        }
+        flag1 = !flag1;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    let colorarr = ["0", "3", "6", "9", "c", "f"]//0 3 6 9 c f 组成的颜色是web安全色
+    function getColor() {//颜色函数
+        let str = "#";
+        for (let i = 0; i < 3; i++) {//随机取出3个数
+            let n = Math.floor(Math.random() * 6)//随机0~6之间的数
+            str += colorarr[n];
+        }
+        return str;
+    }
+
+
+
+    /*在es6中
+     function Human(name,age) {
+     this.name=name;
+     }
+     Human.prototype.say=function () {
+     alert(this.name)
+
+     }*/
+
+
+
+    /*class Human{
+     constructor(name,age){//写参数
+     this.name=name;
+     this.age=age;
+     }
+     say(){//是加到原型身上的 在es6 中新的方法
+     alert(this.name)
+     }
+     }
+     let someone=new Human("zhangsan",12);*/
+
+
+</script>
+</html>
