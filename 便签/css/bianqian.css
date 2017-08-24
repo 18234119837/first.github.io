@@ -10,7 +10,7 @@ html,body{
 .leftbar{
     width: 200px;
     height: 100%;
-    background-color: #000;
+    background-color: dimgray;
     color: #ccc;
     position: fixed;
     left:0;
@@ -23,7 +23,7 @@ html,body{
     padding: 50px 0;
 }
 .leftbar ul li{
-    height: 30px;
+    height: 40px;
     font-size: 20px;
     line-height: 30px;
     cursor: pointer;
@@ -35,12 +35,13 @@ html,body{
     height: 10px;
     border-radius: 50%;
     background-color: #00a8f6;
+    margin-left:22px;
     margin-right: 5px;
 }
 .main{
     width: auto;
     height: 100%;
-    background-color:gray;
+    background-color:#e0e0e0;
     padding-left: 50px;
     display: flex;
     justify-content:center;
@@ -109,7 +110,7 @@ html,body{
 .add input{
     width: 80px;
     height: 30px;
-    background-color:red;
+    background-color:darkgray;
     border-radius: 5px;
     padding:0;
     border:0;
