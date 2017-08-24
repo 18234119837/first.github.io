@@ -66,12 +66,13 @@
         .letter {
             width: 80px;
             height: 80px;
-            border: 1px solid black;
+            /*border: 1px solid black;*/
+            border-radius: 20%;
             text-align: center;
             line-height: 80px;
             position: absolute;
             font-weight: bold;
-
+            font-size: 50px;
             /*background-;*/
 
         }
@@ -141,7 +142,7 @@
             } while (this._checkLeft(randomLeft));
 
             newdiv.style.left = randomLeft + "px";
-            newdiv.style.background=getColor();//字母的背景色
+//            newdiv.style.background=getColor();//字母的背景色
             newdiv.style.color=getColor();//字体颜色随机
             let randomTop = Math.random() * 100;
             this.obj[randomLetter] = {left: randomLeft,ele:newdiv};//只要是真值就可以
